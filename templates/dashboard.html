@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<meta http-equiv="refresh" content="2">
+<body>
+    <h1>System Dashboard</h1>
+    <p>CPU Usage: {{ cpu }}%</p>
+    <p>RAM Usage: {{ ram }}%</p>
+    <p>Disk Usage: {{ disk }}%</p>
+</body>
+</html>
+
