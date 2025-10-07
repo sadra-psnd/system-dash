@@ -3,13 +3,57 @@
 <head>
     <title>System Dashboard</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<meta http-equiv="refresh" content="2">
 <body>
+    <canvas id="systemChart" width="400" height="200"></canvas>
     <h1>System Dashboard</h1>
     <p>CPU Usage: {{ cpu }}%</p>
     <p>RAM Usage: {{ ram }}%</p>
     <p>Disk Usage: {{ disk }}%</p>
+    <script>
+const ctx = document.getElementById('systemChart').getContext('2d');
+
+const systemChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [], // timestamps
+        datasets: [
+            { label: 'CPU', data: [], borderColor: 'red', fill: false },
+            { label: 'RAM', data: [], borderColor: 'blue', fill: false },
+            { label: 'Disk', data: [], borderColor: 'green', fill: false }
+        ]
+    },
+    options: {
+        animation: false,
+        scales: { y: { beginAtZero: true, max: 100 } }
+    }
+});
+
+function updateChart() {
+    fetch('/api/stats')
+        .then(response => response.json())
+        .then(data => {
+            const time = new Date().toLocaleTimeString();
+            if(systemChart.data.labels.length > 10) systemChart.data.labels.shift();
+            systemChart.data.labels.push(time);
+
+            systemChart.data.datasets[0].data.push(data.cpu);
+            systemChart.data.datasets[1].data.push(data.ram);
+            systemChart.data.datasets[2].data.push(data.disk);
+
+            if(systemChart.data.datasets[0].data.length > 10){
+                systemChart.data.datasets.forEach(ds => ds.data.shift());
+            }
+
+            systemChart.update();
+        });
+}
+
+// update every 2 seconds
+setInterval(updateChart, 2000);
+</script>
+
 </body>
 </html>
 
