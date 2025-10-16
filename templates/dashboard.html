@@ -8,10 +8,16 @@
 <body>
     <canvas id="systemChart" width="400" height="200"></canvas>
     <h1>System Dashboard</h1>
-    <p>CPU Usage: {{ cpu }}%</p>
-    <p>RAM Usage: {{ ram }}%</p>
-    <p>Disk Usage: {{ disk }}%</p>
-    <script>
+    
+    <p>CPU Usage: <span id="cpu">{{ cpu }}</span>%</p>
+    <p>RAM Usage: <span id="ram">{{ ram }}</span>%</p>
+    <p>Disk Usage: <span id="disk">{{ disk }}</span>%</p>
+    <p>Processes: <span id="processes">0</span></p>
+    <p>Upload: <span id="upload">0</span> MB/s</p>
+    <p>Download: <span id="download">0</span> MB/s</p>
+
+
+<script>	    
 const ctx = document.getElementById('systemChart').getContext('2d');
 
 const systemChart = new Chart(ctx, {
@@ -47,7 +53,18 @@ function updateChart() {
             }
 
             systemChart.update();
+
+// Update numeric stats
+
+		document.getElementById('cpu').textContent = data.cpu;
+		document.getElementById('ram').textContent = data.ram;
+		document.getElementById('disk').textContent = data.disk;
+		document.getElementById('processes').textContent = data.processes;
+		document.getElementById('upload').textContent = data.upload;
+		document.getElementById('download').textContent = data.download;
+
         });
+
 }
 
 // update every 2 seconds
