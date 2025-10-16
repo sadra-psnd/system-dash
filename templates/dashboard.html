@@ -6,15 +6,19 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <canvas id="systemChart" width="400" height="200"></canvas>
     <h1>System Dashboard</h1>
-    
-    <p>CPU Usage: <span id="cpu">{{ cpu }}</span>%</p>
-    <p>RAM Usage: <span id="ram">{{ ram }}</span>%</p>
-    <p>Disk Usage: <span id="disk">{{ disk }}</span>%</p>
-    <p>Processes: <span id="processes">0</span></p>
-    <p>Upload: <span id="upload">0</span> MB/s</p>
-    <p>Download: <span id="download">0</span> MB/s</p>
+
+<div class="metrics-container">
+    <div class="metric-card">CPU Usage: {{ cpu }}%</div>
+    <div class="metric-card">RAM Usage: {{ ram }}%</div>
+    <div class="metric-card">Disk Usage: {{ disk }}%</div>
+    <div class="metric-card">Processes: {{ processes }}</div>
+    <div class="metric-card">Upload: {{ upload }} MB/s</div>
+    <div class="metric-card">Download: {{ download }} MB/s</div>
+
+</div>
+<div style="height:30px;"></div>
+<canvas id="systemChart" width="400" height="200"></canvas>
 
 
 <script>	    
