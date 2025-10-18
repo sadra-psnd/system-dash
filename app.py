@@ -1,9 +1,13 @@
 from flask import Flask, render_template, jsonify
-import psutil, time, datetime
+import psutil, time, datetime, platform
+import ping3
+
+
+
+
 
 app = Flask(__name__)
-
-
+# battery info needs to be added , system info also needs to be added using platform module 
 
 def uptime_calclulator():
     # Calculate uptime in seconds
@@ -82,20 +86,38 @@ def get_network_speeds():
 #     return round(download_speed/1024/1024,2)
 
 
-
 @app.route('/')
 def dashboard():
     upload, download = get_network_speeds()
+    packetloss = psutil.net_connections()
     num_cpu_physicall_core = psutil.cpu_count(logical=False)
     cpu = psutil.cpu_percent()
+    cpu_info = platform.processor()
+    cpu_current_freq = psutil.cpu_freq().current
     ram = psutil.virtual_memory().percent 
     disk = psutil.disk_usage('/').percent
     processes = len(psutil.pids())
     boot_time = datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
     uptime = uptime_calclulator() 
+    total_RAM = round(psutil.virtual_memory().total / (1024**3))
+    ava_RAM = psutil.virtual_memory().available
     
 
-    return render_template('dashboard.html', cpu=cpu, ram=ram, disk=disk,processes=processes, download=download, upload=upload,boot_time=boot_time, numberofcores=num_cpu_physicall_core, uptime=uptime)
+    return render_template('dashboard.html',
+                           cpu=cpu,
+                           ram=ram,
+                           disk=disk,
+                           processes=processes,
+                           download=download,
+                           upload=upload,
+                           boot_time=boot_time,
+                           numberofcores=num_cpu_physicall_core,
+                           uptime=uptime,
+                           cpu_info=cpu_info,
+                           cpu_current_freq=cpu_current_freq,
+                           total_RAM=total_RAM,
+                           ava_RAM=ava_RAM
+                           )
 
 
 @app.route('/api/stats')
@@ -112,8 +134,11 @@ def api_stats():
              'download': download,
              'boot_time': datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d , %H:%M:%S"),
              'numberofphysicallcores': psutil.cpu_count(logical=False),
-             'uptime': uptime_calclulator()
-             
+             'uptime': uptime_calclulator(),
+             'cpu_info': platform.processor(),
+             'cpu_current_freq': psutil.cpu_freq().current,
+             'total_RAM': round(psutil.virtual_memory().total / (1024**3)),
+             'ava_RAM': psutil.virtual_memory().available
     }
 
     return jsonify(data)
@@ -121,3 +146,33 @@ def api_stats():
 
 if __name__ == "__main__" :     
     app.run(debug=True)
+    
+    
+    
+    
+    
+    
+    
+    
+"""
+System Metrics to Monitor:
+
+Disk:
+- Read/Write Speeds
+- Total and Free Space
+
+Network:
+
+- Errors and Packet Loss
+
+Processes:
+- Top CPU-Usage Processes
+- Top Memory-Usage Processes
+
+
+Battery (if applicable):
+- Percentage
+- Charging Status
+- Time Remaining
+"""
+    
