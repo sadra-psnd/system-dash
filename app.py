@@ -3,11 +3,6 @@ import psutil, time, datetime, platform
 from ping3 import ping, verbose_ping
 
 
-
-print(psutil.disk_partitions().fstype)
-
-
-
 def plugged_status():
     if psutil.sensors_battery().power_plugged:
         return "Charging"
@@ -16,9 +11,7 @@ def plugged_status():
         return "not plugged in"
 
 
-
-
-def uptime_calclulator():
+def uptime_calculator():
     # Calculate uptime in seconds
     uptime_seconds = time.time() - psutil.boot_time()
 
@@ -82,7 +75,7 @@ def dashboard():
     disk = psutil.disk_usage('/').percent
     processes = len(psutil.pids())
     boot_time = datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
-    uptime = uptime_calclulator() 
+    uptime = uptime_calculator() 
     total_RAM = round(psutil.virtual_memory().total / (1024**3))
     ava_RAM = psutil.virtual_memory().available
     battery_percent= psutil.sensors_battery().percent
@@ -126,7 +119,7 @@ def api_stats():
              'download': download,
              'boot_time': datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d , %H:%M:%S"),
              'numberofphysicallcores': psutil.cpu_count(logical=False),
-             'uptime': uptime_calclulator(),
+             'uptime': uptime_calculator(),
              'cpu_info': platform.processor(),
              'cpu_current_freq': psutil.cpu_freq().current,
              'total_RAM': round(psutil.virtual_memory().total / (1024**3)),
@@ -142,7 +135,6 @@ def api_stats():
 if __name__ == "__main__" :     
     app.run(debug=True)
     
-print(psutil.disk_partitions())
     
     
 """
