@@ -4,7 +4,19 @@ from ping3 import ping, verbose_ping
 
 
 
-print(psutil.sensors_battery().percent)
+print(psutil.disk_partitions().fstype)
+
+
+
+def plugged_status():
+    if psutil.sensors_battery().power_plugged:
+        return "Charging"
+    
+    else:
+        return "not plugged in"
+
+
+
 
 def uptime_calclulator():
     # Calculate uptime in seconds
@@ -73,7 +85,10 @@ def dashboard():
     uptime = uptime_calclulator() 
     total_RAM = round(psutil.virtual_memory().total / (1024**3))
     ava_RAM = psutil.virtual_memory().available
-
+    battery_percent= psutil.sensors_battery().percent
+    plugged_status = plugged_status()
+    
+    
     
     
 
@@ -91,7 +106,9 @@ def dashboard():
                            cpu_current_freq=cpu_current_freq,
                            total_RAM=total_RAM,
                            ava_RAM=ava_RAM,
-                           packetloss=packetloss
+                           packetloss=packetloss,
+                           battery_percent=battery_percent,
+                           plugged_status=plugged_status
                            )
 
 
@@ -114,7 +131,9 @@ def api_stats():
              'cpu_current_freq': psutil.cpu_freq().current,
              'total_RAM': round(psutil.virtual_memory().total / (1024**3)),
              'ava_RAM': psutil.virtual_memory().available,
-             'packetloss': packet_loss()
+             'packetloss': packet_loss(),
+             'battery_percent': psutil.sensors_battery().percent
+
     }
 
     return jsonify(data)
@@ -123,11 +142,7 @@ def api_stats():
 if __name__ == "__main__" :     
     app.run(debug=True)
     
-    
-    
-    
-    
-    
+print(psutil.disk_partitions())
     
     
 """
@@ -140,14 +155,12 @@ Disk:
 
 
 Processes:
-- Top CPU-Usage Processes
-- Top Memory-Usage Processes
+- Top CPU-Usage Processes (maybe later)
+- Top Memory-Usage Processes (maybe later)
 
 
 Battery (if applicable):
-- Percentage
-- Charging Status
-- Time Remaining
+- Time Remaining (maybe later)
 
 """
     
