@@ -1,13 +1,10 @@
 from flask import Flask, render_template, jsonify
 import psutil, time, datetime, platform
-import ping3
+from ping3 import ping, verbose_ping
 
 
 
-
-
-app = Flask(__name__)
-# battery info needs to be added , system info also needs to be added using platform module 
+print(psutil.sensors_battery().percent)
 
 def uptime_calclulator():
     # Calculate uptime in seconds
@@ -19,6 +16,13 @@ def uptime_calclulator():
 
     return (f"{hours} hours and {minutes} minutes")
 
+def packet_loss(count=10):
+    lost = 0
+    for _ in range(count):
+        if ping("8.8.8.8") is None:
+            lost += 1
+    loss_percent = (lost / count) * 100
+    return f"Packet loss: {loss_percent:.2f}%"
 
 #global_var for upload and download speed calculation goes here: 
 
@@ -51,45 +55,13 @@ def get_network_speeds():
 
 
 
-
-
-
-
-
-# def upload_speed_calculator():
-#     global prev_net, prev_time
-
-#     current_time = time.time() 
-#     interval = current_time - prev_time
-#     current_net = psutil.net_io_counters()    
-#     upload_speed = (current_net.bytes_sent - prev_net.bytes_sent) / interval
-
-#     prev_net = current_net
-#     prev_time = current_time 
-    
-#     return round(upload_speed / 1024 / 1024, 2)
-
-
-    
-    
-# def download_speed_calculator():
-#     global prev_net, prev_time
-
-#     current_time = time.time() 
-#     interval = current_time - prev_time
-#     current_net = psutil.net_io_counters()    
-#     download_speed = (current_net.bytes_recv - prev_net.bytes_recv) / interval
-    
-#     prev_net = current_net
-#     prev_time = current_time 
-    
-#     return round(download_speed/1024/1024,2)
+app = Flask(__name__)
 
 
 @app.route('/')
 def dashboard():
     upload, download = get_network_speeds()
-    packetloss = psutil.net_connections()
+    packetloss = packet_loss()
     num_cpu_physicall_core = psutil.cpu_count(logical=False)
     cpu = psutil.cpu_percent()
     cpu_info = platform.processor()
@@ -101,6 +73,8 @@ def dashboard():
     uptime = uptime_calclulator() 
     total_RAM = round(psutil.virtual_memory().total / (1024**3))
     ava_RAM = psutil.virtual_memory().available
+
+    
     
 
     return render_template('dashboard.html',
@@ -116,7 +90,8 @@ def dashboard():
                            cpu_info=cpu_info,
                            cpu_current_freq=cpu_current_freq,
                            total_RAM=total_RAM,
-                           ava_RAM=ava_RAM
+                           ava_RAM=ava_RAM,
+                           packetloss=packetloss
                            )
 
 
@@ -138,7 +113,8 @@ def api_stats():
              'cpu_info': platform.processor(),
              'cpu_current_freq': psutil.cpu_freq().current,
              'total_RAM': round(psutil.virtual_memory().total / (1024**3)),
-             'ava_RAM': psutil.virtual_memory().available
+             'ava_RAM': psutil.virtual_memory().available,
+             'packetloss': packet_loss()
     }
 
     return jsonify(data)
@@ -160,10 +136,8 @@ System Metrics to Monitor:
 Disk:
 - Read/Write Speeds
 - Total and Free Space
+- Number of Partions
 
-Network:
-
-- Errors and Packet Loss
 
 Processes:
 - Top CPU-Usage Processes
@@ -174,5 +148,6 @@ Battery (if applicable):
 - Percentage
 - Charging Status
 - Time Remaining
+
 """
     
